@@ -132,6 +132,9 @@ def load_and_extract(name: str):
 
 
 def load_all_data():
+    data = np.load("data/spects.npz")
+    return data['X_seq_all'], data['Y_seq_all']
+
     all_names = load_all_names()
 
     X_seq_all = []
@@ -145,5 +148,7 @@ def load_all_data():
 
     X_seq_all = np.array(X_seq_all)
     Y_seq_all = np.array(Y_seq_all, dtype=np.uint8)
+
+    # np.savez('data/spects.npz', X_seq_all=X_seq_all, Y_seq_all=Y_seq_all)
 
     return X_seq_all, Y_seq_all
