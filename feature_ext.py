@@ -1,3 +1,4 @@
+import os
 import math
 import scipy
 import numpy as np
@@ -90,16 +91,21 @@ def create_spectograms(
     seq_len = math.ceil(num_frames / num_seq_frames)
 
     # list[(num_seq_frames, num_mel_filters)] of len = seq_len
+    chunk_idx = list(
+        range(0, num_frames - num_seq_frames + 1, num_seq_frames))
+    
     X_seq = [
         frame_emb[i:i+num_seq_frames, :]
-        for i in range(0, num_frames, num_seq_frames)
+        for i in chunk_idx
     ]
 
     # (seq_len,)
     Y_seq = [
         vote_for_label(frame_labels[i:i+num_seq_frames, 0])
-        for i in range(0, num_frames, num_seq_frames)
+        for i in chunk_idx
     ]
+
+    return X_seq, Y_seq
 
 
 def load_and_extract(name: str):
@@ -116,3 +122,24 @@ def load_and_extract(name: str):
         num_dur_samples = int(np.round(duration * frequency))
         for _ in range(num_dur_samples):
             signal_labels.append(label)
+
+
+    return create_spectograms(
+        signal,
+        frequency,
+        signal_labels
+    )
+
+
+def load_all_data():
+    all_names = load_all_names()
+
+    X_seq_all = []
+    Y_seq_all = []
+
+    for name in all_names:
+        X_seq, Y_seq = load_and_extract(name)
+
+        X_seq_all.extend(X_seq)
+        Y_seq_all.extend(Y_seq)
+
