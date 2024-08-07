@@ -48,7 +48,7 @@ class ConvBiLSTM(nn.Module):
             batch_first=True,
             bidirectional=True
         )
-        # (B*L, 128*2) (output size of doubled because of bidirectionality)
+        # (B, L, 128*2) (output size of doubled because of bidirectionality)
 
         self.output_layers = nn.Sequential(
             nn.Dropout(0.5),
@@ -86,24 +86,14 @@ class ConvBiLSTM(nn.Module):
             x = x.view(batch_size, sql_len, -1)
         else:
             x = x.view(sql_len, -1)
-
         # (B?, L, 64)
 
-        _, (x, _) = self.lstm(x)
-        # (2, B?, 128)
+        x, _ = self.lstm(x)
+        # (B?, L, 256)
+        logits = self.output_layers(x)
+        # (B?, L, 2)
 
-        if is_batch:
-            x = x.transpose(0, 1)
-        
-        # (B?, 2, 128)
-
-        x = x.flatten(-2, -1)
-
-        # (B?, 256)
-
-        x = self.output_layers(x)
-
-        return x
+        return logits
 
 
 
