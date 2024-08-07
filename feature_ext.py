@@ -1,6 +1,8 @@
 import os
 import math
+
 import scipy
+import torch
 import numpy as np
 import python_speech_features as psf
 
@@ -90,10 +92,10 @@ def create_spectograms(
     # Create sequence of spectograms
     seq_len = math.ceil(num_frames / num_seq_frames)
 
-    # list[(num_seq_frames, num_mel_filters)] of len = seq_len
     chunk_idx = list(
         range(0, num_frames - num_seq_frames + 1, num_seq_frames))
     
+    # list[(num_seq_frames, num_mel_filters)] of len = seq_len
     X_seq = [
         frame_emb[i:i+num_seq_frames, :]
         for i in chunk_idx
@@ -133,7 +135,7 @@ def load_and_extract(name: str):
 
 def load_all_data():
     data = np.load("data/spects.npz")
-    return data['X_seq_all'], data['Y_seq_all']
+    return torch.from_numpy(data['X_seq_all']), torch.from_numpy(data['Y_seq_all'])
 
     all_names = load_all_names()
 
@@ -151,4 +153,4 @@ def load_all_data():
 
     # np.savez('data/spects.npz', X_seq_all=X_seq_all, Y_seq_all=Y_seq_all)
 
-    return X_seq_all, Y_seq_all
+    return torch.from_numpy(X_seq_all), torch.from_numpy(Y_seq_all)
