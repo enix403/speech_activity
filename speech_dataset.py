@@ -1,3 +1,6 @@
+import torch
+import numpy as np
+
 from torch.utils.data import TensorDataset
 from sklearn.model_selection import train_test_split
 
@@ -26,29 +29,29 @@ def _load_name(name: str):
         signal_labels
     )
 
+# ---------------------------------
 
-def _load_full_data():
-    # data = np.load("data/spects.npz")
-    # return torch.from_numpy(data['X_seq_all']), torch.from_numpy(data['Y_seq_all'])
+def load_all_names_flat():
+    data = np.load("data/spects_flat.npz")
+    return torch.from_numpy(data['X_flat']), torch.from_numpy(data['Y_flat'])
 
     all_names = get_all_names_list()
 
-    X_seq_all = []
-    Y_seq_all = []
+    X_flat = []
+    Y_flat = []
 
     for name in all_names:
         X_seq, Y_seq = _load_name(name)
 
-        X_seq_all.extend(X_seq)
-        Y_seq_all.extend(Y_seq)
+        X_flat.extend(X_seq)
+        Y_flat.extend(Y_seq)
 
-    X_seq_all = np.array(X_seq_all, dtype=np.float32)
-    Y_seq_all = np.array(Y_seq_all, dtype=np.float32)
+    X_flat = np.array(X_flat, dtype=np.float32)
+    Y_flat = np.array(Y_flat, dtype=np.float32)
 
-    np.savez('data/spects.npz', X_seq_all=X_seq_all, Y_seq_all=Y_seq_all)
+    np.savez('data/spects_flat.npz', X_flat=X_flat, Y_flat=Y_flat)
 
-    return torch.from_numpy(X_seq_all), torch.from_numpy(Y_seq_all)
-
+    return torch.from_numpy(X_flat), torch.from_numpy(Y_flat)
 
 def chunk_into_sequences(X, Y, seq_len: int = 15):
     batch_size = X.shape[0]
@@ -67,6 +70,18 @@ def chunk_into_sequences(X, Y, seq_len: int = 15):
     ], dim=0)
 
     return X_chunked, Y_chunked
+
+
+def load_all_names_sequenced():
+    data = np.load("data/spects.npz")
+    return torch.from_numpy(data['X']), torch.from_numpy(data['Y'])
+
+    X_flat, Y_flat = load_all_names_flat()
+    X, Y = chunk_into_sequences(X_flat, Y_flat)
+
+    np.savez('data/spects.npz', X=X.numpy(), Y=Y.numpy())
+
+    return X, Y
 
 
 def load_torch_dataset():
