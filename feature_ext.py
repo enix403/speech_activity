@@ -6,24 +6,6 @@ import torch
 import numpy as np
 import python_speech_features as psf
 
-from load_data import *
-
-"""
-Input: waveform (signal, frequeny)
-
-Required:
-
-(from paper)
-
-sequence of 32 × 32 spectrogram images
-constructed by computing 32-dimensional
-log-mel-filterbank energies
-using a frame step of 10 ms, and
-stack-ing them together over 320 ms
-to form one input image.
-
-"""
-
 winlen = 0.025
 winstep = 0.010
 num_mel_filters = 32
@@ -109,48 +91,3 @@ def create_spectograms(
 
     return X_seq, Y_seq
 
-
-def load_and_extract(name: str):
-    audio_path, ann_path = get_file_paths(name)
-
-    signal, frequency = read_audio(audio_path)
-
-    # list[(duration seconds, int label)]
-    annotations = read_annotation(ann_path)
-
-    # TODO: how to deal with rounding errors ?
-    signal_labels = []
-    for (duration, label) in annotations:
-        num_dur_samples = int(np.round(duration * frequency))
-        for _ in range(num_dur_samples):
-            signal_labels.append(label)
-
-
-    return create_spectograms(
-        signal,
-        frequency,
-        signal_labels
-    )
-
-
-def load_all_data():
-    data = np.load("data/spects.npz")
-    return torch.from_numpy(data['X_seq_all']), torch.from_numpy(data['Y_seq_all'])
-
-    all_names = load_all_names()
-
-    X_seq_all = []
-    Y_seq_all = []
-
-    for name in all_names:
-        X_seq, Y_seq = load_and_extract(name)
-
-        X_seq_all.extend(X_seq)
-        Y_seq_all.extend(Y_seq)
-
-    X_seq_all = np.array(X_seq_all)
-    Y_seq_all = np.array(Y_seq_all, dtype=np.uint8)
-
-    # np.savez('data/spects.npz', X_seq_all=X_seq_all, Y_seq_all=Y_seq_all)
-
-    return torch.from_numpy(X_seq_all), torch.from_numpy(Y_seq_all)
