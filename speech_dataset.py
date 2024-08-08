@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 import numpy as np
 
@@ -32,8 +34,10 @@ def _load_name(name: str):
 # ---------------------------------
 
 def _load_all_names_flat():
-    data = np.load("data/spects_flat.npz")
-    return torch.from_numpy(data['X_flat']), torch.from_numpy(data['Y_flat'])
+    cache_path = "data/spects_flat.npz"
+    if Path(cache_path).exists():
+        data = np.load(cache_path)
+        return torch.from_numpy(data['X_flat']), torch.from_numpy(data['Y_flat'])
 
     all_names = get_all_names_list()
 
@@ -47,9 +51,9 @@ def _load_all_names_flat():
         Y_flat.extend(Y_seq)
 
     X_flat = np.array(X_flat, dtype=np.float32)
-    Y_flat = np.array(Y_flat, dtype=np.float32)
+    Y_flat = np.array(Y_flat, dtype=np.uint8)
 
-    np.savez('data/spects_flat.npz', X_flat=X_flat, Y_flat=Y_flat)
+    np.savez(cache_path, X_flat=X_flat, Y_flat=Y_flat)
 
     return torch.from_numpy(X_flat), torch.from_numpy(Y_flat)
 
@@ -73,13 +77,15 @@ def _chunk_into_sequences(X, Y, seq_len: int = 15):
 
 
 def _load_all_names_sequenced():
-    data = np.load("data/spects.npz")
-    return torch.from_numpy(data['X']), torch.from_numpy(data['Y'])
+    cache_path = "data/spects.npz"
+    if Path(cache_path).exists():
+        data = np.load(cache_path)
+        return torch.from_numpy(data['X']), torch.from_numpy(data['Y'])
 
     X_flat, Y_flat = _load_all_names_flat()
     X, Y = _chunk_into_sequences(X_flat, Y_flat)
 
-    np.savez('data/spects.npz', X=X.numpy(), Y=Y.numpy())
+    np.savez(cache_path, X=X.numpy(), Y=Y.numpy())
 
     return X, Y
 
