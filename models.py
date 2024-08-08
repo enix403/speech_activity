@@ -13,19 +13,19 @@ class ConvBiLSTM(nn.Module):
         self.conv_layers = nn.Sequential(
             # (B*L, 1, 32, 32)
             nn.Conv2d(1, 64, (5, 5)),
-            nn.ReLU(),
+            nn.ELU(),
             # (B*L, 64, 28, 28)
             nn.MaxPool2d((2, 2)),
             # (B*L, 64, 14, 14)
 
             nn.Conv2d(64, 128, (3, 3)),
-            nn.ReLU(),
+            nn.ELU(),
             # (B*L, 128, 12, 12)
             nn.MaxPool2d((2, 2)),
             # (B*L, 128, 6, 6)
 
             nn.Conv2d(128, 128, (3, 3)),
-            nn.ReLU(),
+            nn.ELU(),
             # (B*L, 128, 4, 4)
             nn.MaxPool2d((2, 2)),
             # (B*L, 128, 2, 2)
@@ -35,7 +35,7 @@ class ConvBiLSTM(nn.Module):
         self.flat_layers = nn.Sequential(
             # (B*L, 128*2*2)            
             nn.Linear(128 * 2 * 2, 64),
-            nn.ReLU(),
+            nn.ELU(),
             nn.Dropout(0.5)
             # (B*L, 64)
         )
