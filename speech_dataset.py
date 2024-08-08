@@ -31,7 +31,7 @@ def _load_name(name: str):
 
 # ---------------------------------
 
-def load_all_names_flat():
+def _load_all_names_flat():
     data = np.load("data/spects_flat.npz")
     return torch.from_numpy(data['X_flat']), torch.from_numpy(data['Y_flat'])
 
@@ -53,7 +53,7 @@ def load_all_names_flat():
 
     return torch.from_numpy(X_flat), torch.from_numpy(Y_flat)
 
-def chunk_into_sequences(X, Y, seq_len: int = 15):
+def _chunk_into_sequences(X, Y, seq_len: int = 15):
     batch_size = X.shape[0]
 
     chunk_idx = list(
@@ -72,12 +72,12 @@ def chunk_into_sequences(X, Y, seq_len: int = 15):
     return X_chunked, Y_chunked
 
 
-def load_all_names_sequenced():
+def _load_all_names_sequenced():
     data = np.load("data/spects.npz")
     return torch.from_numpy(data['X']), torch.from_numpy(data['Y'])
 
-    X_flat, Y_flat = load_all_names_flat()
-    X, Y = chunk_into_sequences(X_flat, Y_flat)
+    X_flat, Y_flat = _load_all_names_flat()
+    X, Y = _chunk_into_sequences(X_flat, Y_flat)
 
     np.savez('data/spects.npz', X=X.numpy(), Y=Y.numpy())
 
@@ -85,16 +85,13 @@ def load_all_names_sequenced():
 
 
 def load_torch_dataset():
-    X_seq_all, Y_seq_all = _load_full_data()
+    X, Y = _load_all_names_sequenced()
 
-    X_train_all, X_test_all, Y_train_all, Y_test_all = train_test_split(
-        X_seq_all, Y_seq_all,
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        X, Y,
         test_size=0.33,
         shuffle=False
     )
-
-    X_train, Y_train = chunk_into_sequences(X_train_all, Y_train_all)
-    X_test, Y_test = chunk_into_sequences(X_test_all, Y_test_all)
 
     train_dataset = TensorDataset(X_train, Y_train)
     test_dataset = TensorDataset(X_test, Y_test)
