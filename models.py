@@ -50,7 +50,9 @@ class ConvBiLSTM(nn.Module):
 
         self.output_layers = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(128 * 2, 2),
+            nn.Linear(128 * 2, 128),
+            nn.ELU(),
+            nn.Linear(128, 2),
         )
 
     def forward(self, x):
