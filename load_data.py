@@ -27,3 +27,25 @@ def read_annotation(ann_path: str):
 
     return annotations
 
+# --------------
+
+def load_all_names():
+    def _recursive_walk(root):
+        for entry in root.iterdir():
+            if entry.is_dir():
+                yield from _recursive_walk(entry)
+            else:
+                if entry.suffix == '.TextGrid':
+                    yield entry.relative_to(ANNOTATIONS_DIR)
+
+    all_names = []
+    for file in _recursive_walk(ANNOTATIONS_DIR):
+        name = os.path.splitext(file)[0]
+        all_names.append(name)
+
+    return all_names
+
+
+"""
+python how to recursively (using loops) walk a whole directory
+"""
