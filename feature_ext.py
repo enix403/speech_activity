@@ -1,3 +1,4 @@
+import scipy
 import numpy as np
 import python_speech_features as psf
 
@@ -25,34 +26,31 @@ num_mel_filters = 32
 
 def create_frame_labels(
     signal_labels,
-    frame_len,
-    frame_step,
+    frequency
 ):
     # (num_frames, frame_len)
-    frames = psf.sigproc.framesig(
+    frame_labels = psf.sigproc.framesig(
         sig=signal_labels,
-        frame_len=frame_len,
-        frame_step=frame_step,
+        frame_len=winlen * frequency,
+        frame_step=winstep * frequency,
         winfunc=np.ones
     )
 
-    frame_labels = frames
+    # (num_frames, 1)
+    frame_labels, _ = scipy.stats.mode(frame_labels, axis=1, keepdims=True)
 
     return frame_labels
 
-def calc_nfft(frame_len):
-    return 2**int(np.ceil(np.log2(frame_len)))
+def calc_nfft(frequency):
+    est_frame_len = int(np.round(winlen * frequency))
+    return 2**int(np.ceil(np.log2(est_frame_len)))
 
 def create_spectograms(
     signal, # list of samples: (N,)
     frequency: float, # sampling frequency (in seconds)
     signal_labels, # binary labels of each sample (N,)
 ):
-    frame_len = int(np.round(winlen * frequency))
-    frame_step = int(np.round(winstep * frequency))
-
     # Get (log) mel-filterbank energies
-
     # (num_frames, num_mel_filters)
     frame_emb = psf.base.logfbank(
         signal=signal,
@@ -60,16 +58,16 @@ def create_spectograms(
         winlen=winlen,
         winstep=winstep,
         nfilt=num_mel_filters,
-        nfft=calc_nfft(frame_len, frequency),
+        nfft=calc_nfft(frequency),
         lowfreq=0,
         highfreq=None,
     )
 
+    # Get corresponding frame labels
     # (num_frames, 1)
     frame_labels = create_frame_labels(
         signal_labels,
-        frame_len,
-        frame_step
+        frequency
     )
 
 
