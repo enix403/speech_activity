@@ -54,6 +54,11 @@ def calc_nfft(frequency):
     est_frame_len = int(np.round(winlen * frequency))
     return 2**int(np.ceil(np.log2(est_frame_len)))
 
+def vote_for_label(labels):
+    voted_label, _ = scipy.stats.mode(labels, axis=0)
+    voted_label = int(voted_label.item())
+    return voted_label
+
 def create_spectograms(
     signal, # list of samples: (N,)
     frequency: float, # sampling frequency (in seconds)
@@ -84,9 +89,16 @@ def create_spectograms(
     # Create sequence of spectograms
     seq_len = math.ceil(num_frames / num_seq_frames)
 
-    X_seq = []
-    Y_seq = []
+    X_seq = [
+        frame_emb[i:i+num_seq_frames, :]
+        for i in range(0, num_frames, num_seq_frames)
+    ]
+    Y_seq = [
+        vote_for_label(frame_labels[i:i+num_seq_frames, 0])
+        for i in range(0, num_frames, num_seq_frames)
+    ]
 
+    """
     # TODO: check if there is a built in function for this
     for i in range(seq_len):
         start = i * num_seq_frames
@@ -112,6 +124,8 @@ def create_spectograms(
         # Create sequence of (spectogram, voted_label)
         X_seq.append(spectogram)
         Y_seq.append(voted_label)
+    """
+
 
     # X_seq: list[(num_seq_frames, num_mel_filters)]
 
