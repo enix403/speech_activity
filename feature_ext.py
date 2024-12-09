@@ -143,3 +143,7 @@ def load_all_data():
         X_seq_all.extend(X_seq)
         Y_seq_all.extend(Y_seq)
 
+    X_seq_all = np.array(X_seq_all)
+    Y_seq_all = np.array(Y_seq_all, dtype=np.uint8)
+
+    return X_seq_all, Y_seq_all
