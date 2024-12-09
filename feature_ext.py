@@ -89,45 +89,17 @@ def create_spectograms(
     # Create sequence of spectograms
     seq_len = math.ceil(num_frames / num_seq_frames)
 
+    # list[(num_seq_frames, num_mel_filters)] of len = seq_len
     X_seq = [
         frame_emb[i:i+num_seq_frames, :]
         for i in range(0, num_frames, num_seq_frames)
     ]
+
+    # (seq_len,)
     Y_seq = [
         vote_for_label(frame_labels[i:i+num_seq_frames, 0])
         for i in range(0, num_frames, num_seq_frames)
     ]
-
-    """
-    # TODO: check if there is a built in function for this
-    for i in range(seq_len):
-        start = i * num_seq_frames
-        end = (i + 1) * num_seq_frames
-
-        # (<= num_seq_frames, num_mel_filters)
-        part_spectogram = frame_emb[start:end, :]
-
-        num_frames_here = part_spectogram.shape[0]
-
-        # (num_seq_frames, num_mel_filters)
-        spectogram = np.zeros((num_seq_frames, num_mel_filters))
-        spectogram[:num_frames_here, :] = part_spectogram
-
-
-        # (num_seq_frames,)
-        part_labels = frame_labels[start:end, 0]
-
-        # scaler int label
-        voted_label, _ = scipy.stats.mode(part_labels, axis=0)
-        voted_label = int(voted_label.item())
-
-        # Create sequence of (spectogram, voted_label)
-        X_seq.append(spectogram)
-        Y_seq.append(voted_label)
-    """
-
-
-    # X_seq: list[(num_seq_frames, num_mel_filters)]
 
 
 def load_and_extract(name: str):
