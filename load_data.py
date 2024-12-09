@@ -45,7 +45,3 @@ def load_all_names():
 
     return all_names
 
-
-"""
-python how to recursively (using loops) walk a whole directory
-"""
