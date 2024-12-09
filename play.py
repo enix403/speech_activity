@@ -1,1 +1,1 @@
-np.savez('data.npz', X_seq_all=X_seq_all, Y_seq_all=Y_seq_all)
+# np.savez('data/spects.npz', X_seq_all=X_seq_all, Y_seq_all=Y_seq_all)
