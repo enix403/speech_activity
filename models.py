@@ -2,8 +2,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-
-
 class ConvBiLSTM(nn.Module):
     def __init__(self):
         super().__init__()
@@ -48,7 +46,7 @@ class ConvBiLSTM(nn.Module):
             batch_first=True,
             bidirectional=True
         )
-        # (B, L, 128*2) (output size of doubled because of bidirectionality)
+        # (B, L, 128*2) (output size doubls because of bidirectionality)
 
         self.output_layers = nn.Sequential(
             nn.Dropout(0.5),

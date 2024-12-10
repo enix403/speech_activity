@@ -28,9 +28,7 @@ def read_annotation(ann_path: str):
 
     return annotations
 
-# --------------
-
-def load_all_names():
+def get_all_names_list():
     def _recursive_walk(root):
         for entry in root.iterdir():
             if entry.is_dir():
@@ -45,4 +43,3 @@ def load_all_names():
         all_names.append(name)
 
     return all_names
-
